@@ -14,6 +14,7 @@ from lfd.tpsopt.registration import unit_boxify, loglinspace
 from lfd.rapprentice import clouds
 from culinalg_exts import get_gpu_ptrs, dot_batch_nocheck, m_dot_batch
 from settings import N_ITER_CHEAP, DEFAULT_LAMBDA, DS_SIZE, BEND_COEF_DIGITS, EXACT_LAMBDA, N_ITER_EXACT
+from lfd.registration.settings import ROT_REG
 
 
 def parse_arguments():
@@ -32,7 +33,7 @@ def parse_arguments():
     parser.add_argument('--test', action='store_true')
     return parser.parse_args()
 # @profile
-def batch_get_sol_params(x_nd, K_nn, bend_coefs, rot_coef):
+def batch_get_sol_params(x_nd, K_nn, bend_coefs, rot_coef=ROT_REG):
     n, d = x_nd.shape
 
     x_gpu = gpuarray.to_gpu(x_nd)
@@ -93,7 +94,7 @@ def batch_get_sol_params(x_nd, K_nn, bend_coefs, rot_coef):
 
     return proj_mats, offset_mats
 
-def test_batch_get_sol_params(f, bend_coefs, rot_coef, atol=1e-7, index=0):
+def test_batch_get_sol_params(f, bend_coefs, rot_coef=ROT_REG, atol=1e-7, index=0):
     seg_info = f.items()[index][1]
     inv_group =  seg_info['inv']
     ds_key = 'DS_SIZE_{}'.format(DS_SIZE)
@@ -182,7 +183,7 @@ def test_batch_get_sol_params(f, bend_coefs, rot_coef, atol=1e-7, index=0):
     offset_mats_list = [N.dot(h_inv.dot(N.T.dot(F))) for h_inv in h_inv_list]
     assert(np.allclose(offset_mats_list, offset_mats[0][index].get(), atol=atol))
 
-def get_exact_solver(x_na, K_nn, bend_coefs, rot_coef):
+def get_exact_solver(x_na, K_nn, bend_coefs, rot_coef=ROT_REG):
     """
     precomputes several of the matrix products needed to fit a TPS w/o the approximations
     for the batch computation
@@ -218,7 +219,7 @@ def get_exact_solver(x_na, K_nn, bend_coefs, rot_coef):
 
 
 # @profile
-def get_sol_params(x_na, K_nn, bend_coef, rot_coef):
+def get_sol_params(x_na, K_nn, bend_coef, rot_coef=ROT_REG):
     """
     precomputes the linear operators to solve this linear system. 
     only dependence on data is through the specified targets

@@ -4,6 +4,7 @@ import scipy.linalg
 import argparse
 
 from lfd.rapprentice.tps import tps_kernel_matrix 
+from lfd.registration.settings import ROT_REG
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
@@ -14,7 +15,7 @@ def parse_arguments():
     parser.add_argument('--verbose', action='store_true')
     return parser.parse_args()
 
-def get_lu_decomp(x_na, bend_coef, rot_coef):
+def get_lu_decomp(x_na, bend_coef, rot_coef=ROT_REG):
     """
     precomputes the LU decomposition and other intermediate results needed
     to fit a TPS to x_na with bend_coeff
